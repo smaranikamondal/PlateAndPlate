@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PlateAndPlate</title>
+<style>
+:root{--bg:#0b0d10;--card:#14181d;--line:#232a32;--ink:#eef2f6;--muted:#8a96a3;--acc:#c6ff3d;--bad:#ff6b57}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:720px;margin:0 auto;padding:1rem 1rem 4rem}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.4rem;border-radius:20px;
+ background:radial-gradient(circle at 85% 20%,rgba(198,255,61,.22),transparent 55%),linear-gradient(135deg,#171d24,#0f1318);border:1px solid var(--line)}
+.hero h1{margin:0;font-size:1.9rem;line-height:1.1;letter-spacing:-.02em}
+.hero h1 span{color:var(--acc)}
+.hero p{margin:.4rem 0 0;color:var(--muted);font-size:.9rem}
+.ring{position:relative;width:112px;height:112px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:1.25rem}
+.ring .c small{font-weight:500;color:var(--muted);font-size:.7rem}
+.tabs{display:flex;gap:.4rem;margin:1rem 0;background:var(--card);padding:.3rem;border-radius:14px;border:1px solid var(--line)}
+.tab{flex:1;border:0;background:none;color:var(--muted);padding:.6rem;border-radius:10px;font:inherit;font-weight:700;cursor:pointer}
+.tab.on{background:var(--acc);color:#10140a}
+.panel{display:none}.panel.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem;margin-bottom:1rem}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:.35rem;margin-bottom:1rem}
+.day{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:.5rem .1rem;font:inherit;text-align:center;cursor:pointer}
+.day b{display:block;font-size:.75rem;color:var(--muted)}
+.day span{font-size:.62rem;display:block;min-height:1.7em;line-height:1.2;margin-top:.2rem}
+.day.rest{opacity:.4;cursor:default}
+.day.today b{color:var(--acc)}
+.day.sel{border-color:var(--acc);background:rgba(198,255,61,.12)}
+textarea,input{width:100%;border:1px solid var(--line);border-radius:10px;padding:.65rem;font:inherit;background:#0e1115;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
+.chip{border:1px solid var(--line);background:none;color:var(--muted);border-radius:999px;padding:.25rem .8rem;cursor:pointer;font:inherit;font-size:.82rem}
+.chip:hover{border-color:var(--acc);color:var(--acc)}
+.go{background:var(--acc);color:#10140a;border:0;border-radius:10px;padding:.65rem 1.3rem;font:inherit;font-weight:800;cursor:pointer}
+.go:disabled{opacity:.5;cursor:wait}
+.banner{display:none;margin-bottom:1rem;padding:.65rem .9rem;border-radius:12px;font-weight:600;font-size:.92rem}
+.banner.ok{display:block;background:rgba(198,255,61,.12);color:var(--acc)}
+.banner.bad{display:block;background:rgba(255,107,87,.14);color:var(--bad)}
+.banner.load{display:block;background:var(--card);border:1px solid var(--line);color:var(--muted)}
+.spin{display:inline-block;width:.9em;height:.9em;border:2px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:s 1s linear infinite;vertical-align:-2px;margin-right:.5rem}
+@keyframes s{to{transform:rotate(360deg)}}
+.tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem}
+.tag{background:rgba(255,107,87,.14);color:var(--bad);border-radius:999px;padding:.1rem .65rem;font-size:.78rem}
+.out h3{margin:1.1rem 0 .2rem;font-size:1.05rem;color:var(--acc)}
+.out p,.out li{margin:.25rem 0}.out ul{padding-left:1.3rem}
+.row{display:flex;gap:.5rem;margin-top:.6rem}.row input:first-child{flex:1}.row input:nth-child(2){width:7rem}
+.item{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--line)}
+.item button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1rem}
+.muted{color:var(--muted);font-size:.85rem}
+footer{color:var(--muted);font-size:.78rem;text-align:center;margin-top:2rem}
+</style></head><body><main>
+
+<div class="hero">
+  <div><h1>Fuel up,<br><span id="who"></span> 💪</h1>
+  <p>Meals and workouts that run on this laptop. Nothing leaves it.</p></div>
+  <div class="ring"><svg width="112" height="112"><circle cx="56" cy="56" r="48" fill="none" stroke="#232a32" stroke-width="10"/>
+  <circle id="arc" cx="56" cy="56" r="48" fill="none" stroke="#c6ff3d" stroke-width="10" stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="301.6" style="transition:stroke-dashoffset .5s"/></svg>
+  <div class="c"><span id="leftn"></span><small id="leftl">kcal left</small></div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" data-p="train">🏋️ Train</button>
+  <button class="tab" data-p="eat">🥗 Eat</button>
+  <button class="tab" data-p="track">📊 Log</button>
+</div>
+
+<section class="panel on" id="train">
+  <div class="week" id="week"></div>
+  <div class="banner" id="wb"></div>
+  <div class="card" id="wcard" style="display:none"><div class="out" id="wout"></div></div>
+  <p class="muted" id="whint">Tap a training day to get that day's session.</p>
+</section>
+
+<section class="panel" id="eat">
+  <div class="card"><strong>Never includes</strong><div class="tags" id="avoid"></div></div>
+  <div class="card"><textarea id="q" rows="3" placeholder="e.g. 3 high-protein dinners"></textarea>
+  <div class="chips" id="chips"></div><button class="go" id="ebtn">Plan my meals</button></div>
+  <div class="banner" id="eb"></div>
+  <div class="card" id="ecard" style="display:none"><div class="out" id="eout"></div></div>
+</section>
+
+<section class="panel" id="track">
+  <div class="card"><strong>Today's log</strong>
+  <p class="muted" id="prot"></p>
+  <div class="row"><input id="fname" placeholder="Food, e.g. paneer wrap"><input id="fkcal" type="number" min="0" placeholder="kcal"><button class="go" id="fadd">Add</button></div>
+  <div id="flog"></div></div>
+</section>
+
+<footer>Gemma writes. Plain code checks every word before you see it. Targets are formula estimates, not medical advice.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const T=__TARGETS_JSON__, WEEK=__WEEK_JSON__, AVOID=__AVOID_JSON__, NAME=__NAME_JSON__;
+$('who').textContent=NAME;
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function render(t){let h='',ul=false;
+  for(let l of esc(t).split('\n')){l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+    const m=l.match(/^\s*#{1,6}\s*(.*)/),li=l.match(/^\s*[*-]\s+(.*)/);
+    if(li){if(!ul){h+='<ul>';ul=true}h+='<li>'+li[1]+'</li>';continue}
+    if(ul){h+='</ul>';ul=false}
+    if(m)h+='<h3>'+m[1]+'</h3>';else if(l.trim())h+='<p>'+l+'</p>'}
+  return h+(ul?'</ul>':'')}
+function banner(el,kind,html){el.className='banner '+kind;el.innerHTML=html}
+const LOAD='<span class="spin"></span>Writing it on this laptop. This can take a minute...';
+async function call(path,body){const r=await fetch(path,{method:'POST',body:JSON.stringify(body)});return r.json()}
+function show(b,card,out,d,label){
+  banner(b,d.ok?'ok':'bad',d.ok?'✓ Safety check passed (attempt '+d.attempts+' of 3)':'✗ Blocked by the safety check. Try again.');
+  out.innerHTML=render(d.plan);card.style.display='block'}
+
+// tabs
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id===b.dataset.p))});
+
+// train
+const today=(new Date().getDay()+6)%7, cache={};let busy=false;
+WEEK.forEach((d,i)=>{const b=document.createElement('button');
+  b.className='day'+(d.session?'':' rest')+(i===today?' today':'');
+  b.innerHTML='<b>'+d.day+'</b><span></span>';b.lastChild.textContent=d.session||'Rest';
+  if(d.session)b.onclick=async()=>{
+    if(busy)return;
+    document.querySelectorAll('.day').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');
+    $('whint').style.display='none';
+    if(cache[d.session]){show($('wb'),$('wcard'),$('wout'),cache[d.session]);return}
+    busy=true;$('wcard').style.display='none';banner($('wb'),'load',LOAD);
+    try{const r=await call('/workout',{session:d.session});if(r.ok)cache[d.session]=r;show($('wb'),$('wcard'),$('wout'),r)}
+    catch(e){banner($('wb'),'bad','Could not reach the app. Is it still running?')}
+    busy=false};
+  $('week').appendChild(b)});
+
+// eat
+AVOID.forEach(a=>{const s=document.createElement('span');s.className='tag';s.textContent=a;$('avoid').appendChild(s)});
+["A full day of meals","3 high-protein dinners","A post-workout snack","Something with almond flour"].forEach(t=>{
+  const b=document.createElement('button');b.className='chip';b.textContent=t;b.onclick=()=>{$('q').value=t;$('q').focus()};$('chips').appendChild(b)});
+$('ebtn').onclick=async()=>{
+  if(!$('q').value.trim())return $('q').focus();
+  $('ebtn').disabled=true;$('ecard').style.display='none';banner($('eb'),'load',LOAD);
+  try{show($('eb'),$('ecard'),$('eout'),await call('/plan',{request:$('q').value}))}
+  catch(e){banner($('eb'),'bad','Could not reach the app. Is it still running?')}
+  $('ebtn').disabled=false};
+
+// log + ring
+const KEY='safeplate-'+new Date().toISOString().slice(0,10);let food=[];
+try{food=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+function draw(){const sum=food.reduce((a,f)=>a+f.kcal,0),left=T.kcal-sum;
+  $('arc').style.strokeDashoffset=301.6*(1-Math.min(1,sum/T.kcal));
+  $('arc').style.stroke=left<0?'#ff6b57':'#c6ff3d';
+  $('leftn').textContent=Math.abs(left);$('leftl').textContent=left<0?'kcal over':'kcal left';
+  $('prot').textContent='Target: '+T.kcal+' kcal · '+T.protein_g+' g protein · eaten '+sum+' kcal';
+  $('flog').innerHTML='';
+  food.forEach((f,i)=>{const d=document.createElement('div');d.className='item';
+    const n=document.createElement('span');n.textContent=f.name+' · '+f.kcal+' kcal';
+    const x=document.createElement('button');x.textContent='✕';
+    x.onclick=()=>{food.splice(i,1);try{localStorage.setItem(KEY,JSON.stringify(food))}catch(e){}draw()};
+    d.append(n,x);$('flog').appendChild(d)})}
+$('fadd').onclick=()=>{const k=parseInt($('fkcal').value,10);
+  if(!$('fname').value.trim()||!(k>=0))return;
+  food.push({name:$('fname').value.trim().slice(0,60),kcal:k});$('fname').value='';$('fkcal').value='';
+  try{localStorage.setItem(KEY,JSON.stringify(food))}catch(e){}draw()};
+draw();
+</script></main></body></html>

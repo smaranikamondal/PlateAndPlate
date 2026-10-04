@@ -1,0 +1,45 @@
+{
+  "name": "Surya",
+  "age": 18,
+  "sex": "male",
+  "height_cm": 180,
+  "weight_kg": 68,
+  "activity": "moderate",
+  "goal": "gain",
+  "diet": "vegetarian",
+  "likes": [
+    "dal",
+    "paneer",
+    "rice",
+    "eggs",
+    "curd"
+  ],
+  "avoid": [
+    "nut",
+    "peanut",
+    "groundnut",
+    "almond",
+    "cashew",
+    "walnut",
+    "pistachio",
+    "hazelnut",
+    "pecan",
+    "macadamia",
+    "shellfish",
+    "shrimp",
+    "prawn",
+    "crab",
+    "lobster",
+    "oyster",
+    "clam",
+    "mussel",
+    "scallop"
+  ],
+  "notes": "Severe nut and shellfish allergy. Cooks for one.",
+  "gym_days": 4,
+  "experience": "beginner",
+  "equipment": "full gym",
+  "avoid_exercises": [
+    "behind the neck"
+  ]
+}
